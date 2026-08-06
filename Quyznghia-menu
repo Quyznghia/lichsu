@@ -1,0 +1,202 @@
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui", 5)
+if not playerGui then return end
+
+-- ID ảnh nút mở Menu
+local IMAGE_ID = "rbxassetid://139952735258383" 
+
+-- 1. TẠO SCREEN GUI CHÍNH
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "MyCustomMenuHub"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 2000000000
+
+-- 2. NÚT BẤM HÌNH VUÔNG VIỀN TRÒN (IMAGE BUTTON)
+local openBtn = Instance.new("ImageButton", screenGui)
+openBtn.Name = "OpenImageButton"
+openBtn.Size = UDim2.new(0, 55, 0, 55)
+openBtn.Position = UDim2.new(0.02, 0, 0.15, 0)
+openBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+openBtn.BackgroundTransparency = 0
+openBtn.Image = IMAGE_ID
+openBtn.ScaleType = Enum.ScaleType.Crop
+openBtn.Active = true
+openBtn.Draggable = true
+
+-- Bo góc hình vuông
+local btnCorner = Instance.new("UICorner", openBtn)
+btnCorner.CornerRadius = UDim.new(0, 12)
+
+-- Viền ngoài cho nút
+local btnStroke = Instance.new("UIStroke", openBtn)
+btnStroke.Color = Color3.fromRGB(255, 255, 255)
+btnStroke.Thickness = 2
+
+-- 3. KHUNG MENU CHÍNH (MAIN MENU FRAME)
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 320, 0, 180) -- Thu gọn khung vừa vặn
+mainFrame.Position = UDim2.new(0.5, -160, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Visible = true
+
+local mainCorner = Instance.new("UICorner", mainFrame)
+mainCorner.CornerRadius = UDim.new(0, 10)
+local mainStroke = Instance.new("UIStroke", mainFrame)
+mainStroke.Color = Color3.fromRGB(50, 50, 50)
+mainStroke.Thickness = 1.5
+
+-- Thanh tiêu đề
+local titleBar = Instance.new("Frame", mainFrame)
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+titleBar.BorderSizePixel = 0
+
+local titleCorner = Instance.new("UICorner", titleBar)
+titleCorner.CornerRadius = UDim.new(0, 10)
+
+local titleLabel = Instance.new("TextLabel", titleBar)
+titleLabel.Size = UDim2.new(1, -50, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "UTILITY HUB"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 16
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Nút đóng Menu (X)
+local closeBtn = Instance.new("TextButton", titleBar)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.TextSize = 14
+closeBtn.Font = Enum.Font.SourceSansBold
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 6)
+
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+openBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
+-- Khung chứa danh sách các chức năng (Container)
+local container = Instance.new("ScrollingFrame", mainFrame)
+container.Size = UDim2.new(1, -20, 1, -55)
+container.Position = UDim2.new(0, 10, 0, 45)
+container.BackgroundTransparency = 1
+container.BorderSizePixel = 0
+container.ScrollBarThickness = 4
+
+local listLayout = Instance.new("UIListLayout", container)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 8)
+
+-- 4. KHUNG TẠO NÚT/TOGGLE TỰ ĐỘNG
+local function createToggle(name, defaultState, callback)
+    local btn = Instance.new("TextButton", container)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.BackgroundColor3 = defaultState and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(40, 40, 40)
+    btn.Text = name .. ": " .. (defaultState and "ON" or "OFF")
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 14
+    btn.Font = Enum.Font.SourceSansBold
+
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 6)
+
+    local state = defaultState
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = name .. ": " .. (state and "ON" or "OFF")
+        btn.BackgroundColor3 = state and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(40, 40, 40)
+        callback(state)
+    end)
+    return btn
+end
+
+-- 5. CÁC TÍNH NĂNG TRONG MENU
+
+-- A. Banner Status Toggle (FPS | Thời gian | Username)
+local bannerFrame = Instance.new("Frame", screenGui)
+bannerFrame.Size = UDim2.new(0, 400, 0, 40)
+bannerFrame.Position = UDim2.new(0.5, -200, 0.02, 0)
+bannerFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+bannerFrame.BorderSizePixel = 0
+bannerFrame.ZIndex = 99999
+bannerFrame.Visible = true
+
+local bannerCorner = Instance.new("UICorner", bannerFrame)
+bannerCorner.CornerRadius = UDim.new(0, 10)
+local bannerStroke = Instance.new("UIStroke", bannerFrame)
+bannerStroke.Color = Color3.fromRGB(255, 255, 255)
+
+local infoLabel = Instance.new("TextLabel", bannerFrame)
+infoLabel.Size = UDim2.new(1, 0, 1, 0)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Font = Enum.Font.SourceSansBold
+infoLabel.TextSize = 16
+infoLabel.RichText = true
+infoLabel.ZIndex = 100001
+
+local startTime = os.time()
+local frameCount, lastUpdate, currentFPS = 0, os.clock(), 0
+
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local now = os.clock()
+    if now - lastUpdate >= 1 then
+        currentFPS = math.floor(frameCount / (now - lastUpdate))
+        frameCount = 0
+        lastUpdate = now
+    end
+end)
+
+task.spawn(function()
+    while true do
+        local elapsed = os.time() - startTime
+        local mins, secs = math.floor(elapsed / 60), elapsed % 60
+        local timeStr = string.format("%02d:%02d", mins, secs)
+        infoLabel.Text = string.format(
+            '<font color="rgb(255,230,0)">%d FPS</font>   <font color="rgb(255,60,60)">%s</font>   <font color="rgb(230,60,255)">%s</font>',
+            currentFPS, timeStr, player.Name
+        )
+        task.wait(0.5)
+    end
+end)
+
+createToggle("Status Banner", true, function(state)
+    bannerFrame.Visible = state
+end)
+
+-- B. FE Desync Hitbox Toggle
+getgenv().DesyncState = false
+RunService.Heartbeat:Connect(function()
+    if getgenv().DesyncState then
+        local char = player.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local hrp = char.HumanoidRootPart
+            local oldCF = hrp.CFrame
+            hrp.CFrame = hrp.CFrame + Vector3.new(0, 50, 0)
+            RunService.RenderStepped:Wait()
+            hrp.CFrame = oldCF
+        end
+    end
+end)
+
+createToggle("FE Desync (Anti-Hit)", false, function(state)
+    getgenv().DesyncState = state
+end)
