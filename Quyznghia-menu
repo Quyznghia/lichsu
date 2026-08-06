@@ -1,218 +1,229 @@
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui", 5)
 if not playerGui then return end
 
--- Hàm hỗ trợ tải ảnh trực tiếp từ link web hoặc Asset ID
-local function getAsset(idOrUrl)
-    if string.sub(idOrUrl, 1, 4) == "http" then
-        local fileName = "temp_icon_" .. tick() .. ".png"
-        if writefile and getcustomasset then
-            pcall(function()
-                writefile(fileName, game:HttpGet(idOrUrl))
-            end)
-            if isfile and isfile(fileName) then
-                return getcustomasset(fileName)
-            end
-        end
-    end
-    return idOrUrl
-end
+-- ID ảnh nút mở Menu (Vuông bo góc)
+local IMAGE_ID = "rbxassetid://139952735258383" 
 
--- Link ảnh (Bạn có thể dán link HTTP trực tiếp hoặc rbxassetid vào đây)
-local IMAGE_SOURCE = "rbxassetid://139952735258383" 
-
--- 1. TẠO SCREEN GUI CHÍNH
+-- 1. TẠO SCREEN GUI
 local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "MyCustomMenuHub"
+screenGui.Name = "TabMenuHub"
 screenGui.ResetOnSpawn = false
 screenGui.DisplayOrder = 2000000000
 
--- 2. NÚT BẤM HÌNH VUÔNG VIỀN TRÒN (IMAGE BUTTON)
+-- 2. NÚT MỞ MENU (IMAGE BUTTON)
 local openBtn = Instance.new("ImageButton", screenGui)
-openBtn.Name = "OpenImageButton"
-openBtn.Size = UDim2.new(0, 55, 0, 55)
+openBtn.Name = "OpenMenuButton"
+openBtn.Size = UDim2.new(0, 50, 0, 50)
 openBtn.Position = UDim2.new(0.02, 0, 0.15, 0)
-openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-openBtn.BackgroundTransparency = 1 -- Sửa lại thành 1 để không bị nền màu trắng đè lên
-openBtn.Image = getAsset(IMAGE_SOURCE)
-openBtn.ScaleType = Enum.ScaleType.Fit
+openBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+openBtn.Image = IMAGE_ID
+openBtn.ScaleType = Enum.ScaleType.Crop
 openBtn.Active = true
 openBtn.Draggable = true
 
--- Bo góc hình vuông
-local btnCorner = Instance.new("UICorner", openBtn)
-btnCorner.CornerRadius = UDim.new(0, 12)
+local openCorner = Instance.new("UICorner", openBtn)
+openCorner.CornerRadius = UDim.new(0, 12)
 
--- Viền ngoài cho nút
-local btnStroke = Instance.new("UIStroke", openBtn)
-btnStroke.Color = Color3.fromRGB(255, 255, 255)
-btnStroke.Thickness = 1.5
+local openStroke = Instance.new("UIStroke", openBtn)
+openStroke.Color = Color3.fromRGB(0, 180, 90)
+openStroke.Thickness = 1.5
 
--- 3. KHUNG MENU CHÍNH (MAIN MENU FRAME)
+-- 3. KHUNG MENU CHÍNH
 local mainFrame = Instance.new("Frame", screenGui)
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 320, 0, 180)
-mainFrame.Position = UDim2.new(0.5, -160, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+mainFrame.Size = UDim2.new(0, 520, 0, 310)
+mainFrame.Position = UDim2.new(0.5, -260, 0.5, -155)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
-mainFrame.Visible = true
 
 local mainCorner = Instance.new("UICorner", mainFrame)
-mainCorner.CornerRadius = UDim.new(0, 10)
+mainCorner.CornerRadius = UDim.new(0, 8)
+
 local mainStroke = Instance.new("UIStroke", mainFrame)
-mainStroke.Color = Color3.fromRGB(50, 50, 50)
+mainStroke.Color = Color3.fromRGB(0, 180, 90)
 mainStroke.Thickness = 1.5
 
--- Thanh tiêu đề
-local titleBar = Instance.new("Frame", mainFrame)
-titleBar.Size = UDim2.new(1, 0, 0, 40)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-titleBar.BorderSizePixel = 0
+-- Thanh Tiêu Đề (Top Bar)
+local topBar = Instance.new("Frame", mainFrame)
+topBar.Size = UDim2.new(1, 0, 0, 35)
+topBar.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+topBar.BorderSizePixel = 0
 
-local titleCorner = Instance.new("UICorner", titleBar)
-titleCorner.CornerRadius = UDim.new(0, 10)
+local topCorner = Instance.new("UICorner", topBar)
+topCorner.CornerRadius = UDim.new(0, 8)
 
-local titleLabel = Instance.new("TextLabel", titleBar)
-titleLabel.Size = UDim2.new(1, -50, 1, 0)
-titleLabel.Position = UDim2.new(0, 15, 0, 0)
+local titleLabel = Instance.new("TextLabel", topBar)
+titleLabel.Size = UDim2.new(1, -40, 1, 0)
+titleLabel.Position = UDim2.new(0, 12, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "UTILITY HUB"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 16
+titleLabel.Text = "< Menu Hub >"
+titleLabel.TextColor3 = Color3.fromRGB(0, 220, 110)
+titleLabel.TextSize = 15
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Nút đóng Menu (X)
-local closeBtn = Instance.new("TextButton", titleBar)
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -35, 0, 5)
+-- Nút Đóng (X)
+local closeBtn = Instance.new("TextButton", topBar)
+closeBtn.Size = UDim2.new(0, 25, 0, 25)
+closeBtn.Position = UDim2.new(1, -30, 0, 5)
 closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 closeBtn.Text = "X"
 closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.TextSize = 14
 closeBtn.Font = Enum.Font.SourceSansBold
 
 local closeCorner = Instance.new("UICorner", closeBtn)
 closeCorner.CornerRadius = UDim.new(0, 6)
 
-closeBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
-end)
+closeBtn.MouseButton1Click:Connect(function() mainFrame.Visible = false end)
+openBtn.MouseButton1Click:Connect(function() mainFrame.Visible = not mainFrame.Visible end)
 
-openBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
-end)
+-- 4. KHUNG BÊN TRÁI (SIDEBAR TAB LIST)
+local sidebar = Instance.new("ScrollingFrame", mainFrame)
+sidebar.Size = UDim2.new(0, 150, 1, -45)
+sidebar.Position = UDim2.new(0, 8, 0, 40)
+sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+sidebar.BorderSizePixel = 0
+sidebar.ScrollBarThickness = 2
 
--- Khung chứa danh sách các chức năng (Container)
-local container = Instance.new("ScrollingFrame", mainFrame)
-container.Size = UDim2.new(1, -20, 1, -55)
-container.Position = UDim2.new(0, 10, 0, 45)
-container.BackgroundTransparency = 1
-container.BorderSizePixel = 0
-container.ScrollBarThickness = 4
+local sidebarCorner = Instance.new("UICorner", sidebar)
+sidebarCorner.CornerRadius = UDim.new(0, 6)
 
-local listLayout = Instance.new("UIListLayout", container)
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Padding = UDim.new(0, 8)
+local sidebarLayout = Instance.new("UIListLayout", sidebar)
+sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sidebarLayout.Padding = UDim.new(0, 4)
 
--- 4. KHUNG TẠO NÚT/TOGGLE TỰ ĐỘNG
-local function createToggle(name, defaultState, callback)
-    local btn = Instance.new("TextButton", container)
-    btn.Size = UDim2.new(1, 0, 0, 40)
-    btn.BackgroundColor3 = defaultState and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(40, 40, 40)
-    btn.Text = name .. ": " .. (defaultState and "ON" or "OFF")
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 14
-    btn.Font = Enum.Font.SourceSansBold
+-- 5. KHUNG BÊN PHẢI (CONTENT AREA)
+local contentArea = Instance.new("Frame", mainFrame)
+contentArea.Size = UDim2.new(1, -172, 1, -45)
+contentArea.Position = UDim2.new(0, 164, 0, 40)
+contentArea.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+contentArea.BorderSizePixel = 0
 
-    local corner = Instance.new("UICorner", btn)
-    corner.CornerRadius = UDim.new(0, 6)
+local contentCorner = Instance.new("UICorner", contentArea)
+contentCorner.CornerRadius = UDim.new(0, 6)
 
-    local state = defaultState
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = name .. ": " .. (state and "ON" or "OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(40, 40, 40)
-        callback(state)
+-- QUẢN LÝ TẠO TAB VÀ MỤC TRONG TAB
+local tabs = {}
+
+local function createTab(tabName)
+    -- Nút Chọn Tab ở Sidebar
+    local tabBtn = Instance.new("TextButton", sidebar)
+    tabBtn.Size = UDim2.new(1, 0, 0, 32)
+    tabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    tabBtn.Text = tabName
+    tabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    tabBtn.TextSize = 13
+    tabBtn.Font = Enum.Font.SourceSansBold
+
+    local tabCorner = Instance.new("UICorner", tabBtn)
+    tabCorner.CornerRadius = UDim.new(0, 4)
+
+    -- Khung Nội Dung Của Tab Đó
+    local tabContent = Instance.new("ScrollingFrame", contentArea)
+    tabContent.Size = UDim2.new(1, -10, 1, -10)
+    tabContent.Position = UDim2.new(0, 5, 0, 5)
+    tabContent.BackgroundTransparency = 1
+    tabContent.BorderSizePixel = 0
+    tabContent.ScrollBarThickness = 3
+    tabContent.Visible = false
+
+    local contentLayout = Instance.new("UIListLayout", tabContent)
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    contentLayout.Padding = UDim.new(0, 6)
+
+    -- Chuyển Tab khi bấm
+    tabBtn.MouseButton1Click:Connect(function()
+        for _, t in pairs(tabs) do
+            t.Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+            t.Btn.TextColor3 = Color3.fromRGB(180, 180, 180)
+            t.Content.Visible = false
+        end
+        tabBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 90)
+        tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        tabContent.Visible = true
     end)
-    return btn
+
+    local tabData = {
+        Btn = tabBtn,
+        Content = tabContent,
+        -- Hàm thêm nút bấm màu xanh vào Tab
+        AddButton = function(titleText, callback)
+            local row = Instance.new("Frame", tabContent)
+            row.Size = UDim2.new(1, 0, 0, 38)
+            row.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+
+            local rowCorner = Instance.new("UICorner", row)
+            rowCorner.CornerRadius = UDim.new(0, 6)
+
+            local label = Instance.new("TextLabel", row)
+            label.Size = UDim2.new(1, -100, 1, 0)
+            label.Position = UDim2.new(0, 10, 0, 0)
+            label.BackgroundTransparency = 1
+            label.Text = titleText
+            label.TextColor3 = Color3.fromRGB(230, 230, 230)
+            label.TextSize = 13
+            label.Font = Enum.Font.SourceSansBold
+            label.TextXAlignment = Enum.TextXAlignment.Left
+
+            -- Nút Màu Xanh
+            local actionBtn = Instance.new("TextButton", row)
+            actionBtn.Size = UDim2.new(0, 80, 0, 26)
+            actionBtn.Position = UDim2.new(1, -85, 0.5, -13)
+            actionBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 90)
+            actionBtn.Text = "Click"
+            actionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            actionBtn.TextSize = 12
+            actionBtn.Font = Enum.Font.SourceSansBold
+
+            local btnCorner = Instance.new("UICorner", actionBtn)
+            btnCorner.CornerRadius = UDim.new(0, 5)
+
+            actionBtn.MouseButton1Click:Connect(function()
+                if callback then callback() end
+            end)
+        end
+    }
+
+    table.insert(tabs, tabData)
+    return tabData
 end
 
--- 5. CÁC TÍNH NĂNG TRONG MENU
+-- ==========================================================
+-- TẠO CÁC TAB & NÚT MẪU (BẠN CÓ THỂ ĐỔI TÊN/THÊM TùY Ý)
+-- ==========================================================
 
--- A. Banner Status Toggle
-local bannerFrame = Instance.new("Frame", screenGui)
-bannerFrame.Size = UDim2.new(0, 400, 0, 40)
-bannerFrame.Position = UDim2.new(0.5, -200, 0.02, 0)
-bannerFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-bannerFrame.BorderSizePixel = 0
-bannerFrame.ZIndex = 99999
-bannerFrame.Visible = true
+local mainTab = createTab("Main")
+local shopTab = createTab("Shop")
+local miscTab = createTab("Misc")
 
-local bannerCorner = Instance.new("UICorner", bannerFrame)
-bannerCorner.CornerRadius = UDim.new(0, 10)
-local bannerStroke = Instance.new("UIStroke", bannerFrame)
-bannerStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local infoLabel = Instance.new("TextLabel", bannerFrame)
-infoLabel.Size = UDim2.new(1, 0, 1, 0)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Font = Enum.Font.SourceSansBold
-infoLabel.TextSize = 16
-infoLabel.RichText = true
-infoLabel.ZIndex = 100001
-
-local startTime = os.time()
-local frameCount, lastUpdate, currentFPS = 0, os.clock(), 0
-
-RunService.RenderStepped:Connect(function()
-    frameCount = frameCount + 1
-    local now = os.clock()
-    if now - lastUpdate >= 1 then
-        currentFPS = math.floor(frameCount / (now - lastUpdate))
-        frameCount = 0
-        lastUpdate = now
-    end
+-- Tab 1: Main
+mainTab.AddButton("Chức năng 1", function()
+    print("Đã bấm Chức năng 1")
+end)
+mainTab.AddButton("Chức năng 2", function()
+    print("Đã bấm Chức năng 2")
 end)
 
-task.spawn(function()
-    while true do
-        local elapsed = os.time() - startTime
-        local mins, secs = math.floor(elapsed / 60), elapsed % 60
-        local timeStr = string.format("%02d:%02d", mins, secs)
-        infoLabel.Text = string.format(
-            '<font color="rgb(255,230,0)">%d FPS</font>   <font color="rgb(255,60,60)">%s</font>   <font color="rgb(230,60,255)">%s</font>',
-            currentFPS, timeStr, player.Name
-        )
-        task.wait(0.5)
-    end
+-- Tab 2: Shop
+shopTab.AddButton("Redeem Code", function()
+    print("Đã bấm Redeem Code")
+end)
+shopTab.AddButton("Buy Item", function()
+    print("Đã bấm Buy Item")
 end)
 
-createToggle("Status Banner", true, function(state)
-    bannerFrame.Visible = state
+-- Tab 3: Misc
+miscTab.AddButton("Teleport World", function()
+    print("Đã bấm Teleport World")
 end)
 
--- B. FE Desync Hitbox Toggle
-getgenv().DesyncState = false
-RunService.Heartbeat:Connect(function()
-    if getgenv().DesyncState then
-        local char = player.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            local hrp = char.HumanoidRootPart
-            local oldCF = hrp.CFrame
-            hrp.CFrame = hrp.CFrame + Vector3.new(0, 50, 0)
-            RunService.RenderStepped:Wait()
-            hrp.CFrame = oldCF
-        end
-    end
-end)
-
-createToggle("FE Desync (Anti-Hit)", false, function(state)
-    getgenv().DesyncState = state
-end)
+-- Mặc định chọn Tab đầu tiên
+if #tabs > 0 then
+    tabs[1].Btn.BackgroundColor3 = Color3.fromRGB(0, 180, 90)
+    tabs[1].Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tabs[1].Content.Visible = true
+end
