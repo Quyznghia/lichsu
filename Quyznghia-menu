@@ -6,8 +6,24 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui", 5)
 if not playerGui then return end
 
--- ID ảnh nút mở Menu
-local IMAGE_ID = "rbxassetid://139952735258383" 
+-- Hàm hỗ trợ tải ảnh trực tiếp từ link web hoặc Asset ID
+local function getAsset(idOrUrl)
+    if string.sub(idOrUrl, 1, 4) == "http" then
+        local fileName = "temp_icon_" .. tick() .. ".png"
+        if writefile and getcustomasset then
+            pcall(function()
+                writefile(fileName, game:HttpGet(idOrUrl))
+            end)
+            if isfile and isfile(fileName) then
+                return getcustomasset(fileName)
+            end
+        end
+    end
+    return idOrUrl
+end
+
+-- Link ảnh (Bạn có thể dán link HTTP trực tiếp hoặc rbxassetid vào đây)
+local IMAGE_SOURCE = "rbxassetid://139952735258383" 
 
 -- 1. TẠO SCREEN GUI CHÍNH
 local screenGui = Instance.new("ScreenGui", playerGui)
@@ -20,10 +36,10 @@ local openBtn = Instance.new("ImageButton", screenGui)
 openBtn.Name = "OpenImageButton"
 openBtn.Size = UDim2.new(0, 55, 0, 55)
 openBtn.Position = UDim2.new(0.02, 0, 0.15, 0)
-openBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-openBtn.BackgroundTransparency = 0
-openBtn.Image = IMAGE_ID
-openBtn.ScaleType = Enum.ScaleType.Crop
+openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+openBtn.BackgroundTransparency = 1 -- Sửa lại thành 1 để không bị nền màu trắng đè lên
+openBtn.Image = getAsset(IMAGE_SOURCE)
+openBtn.ScaleType = Enum.ScaleType.Fit
 openBtn.Active = true
 openBtn.Draggable = true
 
@@ -34,12 +50,12 @@ btnCorner.CornerRadius = UDim.new(0, 12)
 -- Viền ngoài cho nút
 local btnStroke = Instance.new("UIStroke", openBtn)
 btnStroke.Color = Color3.fromRGB(255, 255, 255)
-btnStroke.Thickness = 2
+btnStroke.Thickness = 1.5
 
 -- 3. KHUNG MENU CHÍNH (MAIN MENU FRAME)
 local mainFrame = Instance.new("Frame", screenGui)
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 320, 0, 180) -- Thu gọn khung vừa vặn
+mainFrame.Size = UDim2.new(0, 320, 0, 180)
 mainFrame.Position = UDim2.new(0.5, -160, 0.3, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 mainFrame.BorderSizePixel = 0
@@ -130,7 +146,7 @@ end
 
 -- 5. CÁC TÍNH NĂNG TRONG MENU
 
--- A. Banner Status Toggle (FPS | Thời gian | Username)
+-- A. Banner Status Toggle
 local bannerFrame = Instance.new("Frame", screenGui)
 bannerFrame.Size = UDim2.new(0, 400, 0, 40)
 bannerFrame.Position = UDim2.new(0.5, -200, 0.02, 0)
